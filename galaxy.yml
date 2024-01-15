@@ -1,0 +1,20 @@
+---
+namespace: adfinis
+name: bareos
+version: 1.0.0
+readme: README.md
+authors:
+  - Adfinis
+description: A collection of roles for Bareos
+license_file: 'LICENSE'
+tags:
+  - linux
+  - bareos
+  - backup
+dependencies:
+  ansible.posix: "*"
+repository: https://github.com/adfinis/ansible-collection-bareos
+documentation: https://adfinis.com/
+homepage: https://adfinis.com/
+issues: http://github.com/adfinis/ansible-collection-bareos/issues
+build_ignore: []

@@ -1,0 +1,7 @@
+---
+roles:
+  - name: robertdebock.bootstrap
+  - name: adfinis.bareos_repository
+
+collections:
+  - name: community.crypto

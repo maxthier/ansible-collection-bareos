@@ -1,0 +1,38 @@
+---
+galaxy_info:
+  author: adfinis
+  role_name: bareos_webui
+  description: Install and configure [Bareos](https://www.bareos.com/) WebUI on your system.
+  license: Apache-2.0
+  company: none
+  min_ansible_version: "2.12"
+
+  platforms:
+    - name: Debian
+      versions:
+        - bookworm
+        - bullseye
+        - buster
+    - name: EL
+      versions:
+        - "8"
+        - "9"
+    - name: Fedora
+      versions:
+        - "37"
+        - "38"
+    - name: Ubuntu
+      versions:
+        - jammy
+        - focal
+
+  galaxy_tags:
+    - backup
+    - bareos
+    - infrastructure
+    - linux
+    - storage
+    - system
+    - tools
+
+dependencies: []
