@@ -76,7 +76,24 @@ bareos_fd_configuration:
   enabled: true
   connection_from_fd: false
   connection_from_dir: true
+
+bareos_fd_jobs:
+  - name: host.example.com_Daily
+    pool: Pool_Daily
+    type: Backup
+    messages: Messages_Daily
+    jobdefs: JobDef_StandardIncremental
+    schedule: Schedule_StandardIncremental
+    storage: Storage_bareosStorageDaemon-01.example.com
+  - name: host.example.com_WeeklyFull
+    pool: Pool_Weekly
+    type: Backup
+    messages: Messages_Weekly
+    jobdefs: JobDef_StandardFull
+    schedule: Schedule_StandardFull
+    storage: Storage_bareosStorageDaemon-02.example.com
 ```
 
 ### Playbooks
 * **manage_clients_playbook.yml**: Sets up all clients/FDs (bareos_repository, bareos_fd) and deploys them dynamically on the Director (bareos_dir).
+* **manage_jobs_playbook.yml**: Sets up a dedicated job for every client/FD on the Director.
