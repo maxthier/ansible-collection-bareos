@@ -1,0 +1,15 @@
+---
+
+- name: Fetch encryption key-pair string from filedaemons
+  hosts: filedaemons
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Fetch key-pair from filedaemons
+      ansible.builtin.slurp:
+        src: "/etc/bareos/{{ inventory_hostname }}.pem"
+      register: _keypair
+
+    - name: Print key-pair string
+      ansible.builtin.debug:
+        msg: "{{ _keypair['content'] | b64decode }}"
