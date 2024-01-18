@@ -9,7 +9,6 @@
 - name: Setup clients from host_group filedaemons
   hosts: filedaemons
   become: true
-  gather_facts: true
   pre_tasks:
     - name: Fetch facts from director
       ansible.builtin.setup:
@@ -29,7 +28,6 @@
 - name: Deploy Filedaemons on Director with the bareos_dir role
   hosts: directors
   become: true
-  gather_facts: true
   vars:
     _fd_list: []
   pre_tasks:

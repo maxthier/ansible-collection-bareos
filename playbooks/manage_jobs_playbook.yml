@@ -3,15 +3,12 @@
 - name: Gather facts from all hosts
   hosts: all
   become: true
-  tasks:
-    - name: Gather host facts
-      ansible.builtin.setup:
+  gather_facts: true
   tags: always
 
 - name: Create jobs on Director for every client in host_group filedaemons
   hosts: directors
   become: true
-  gather_facts: true
   vars:
     _job_list: []
   pre_tasks:
