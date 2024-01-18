@@ -3,9 +3,7 @@
 - name: Gather facts from all hosts
   hosts: all
   become: true
-  tasks:
-    - name: Gather host facts
-      ansible.builtin.setup:
+  gather_facts: true
   tags: always
 
 - name: Setup clients from host_group filedaemons
