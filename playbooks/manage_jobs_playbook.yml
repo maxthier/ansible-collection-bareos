@@ -26,6 +26,7 @@
             'schedule': job_defaults.schedule}]
           }}
       loop: "{{ groups['filedaemons'] }}"
+      tags: manage_jobs
       when:  # if job(s) are defined in host_vars, standards will be skipped
         - hostvars[item].bareos_fd_jobs is undefined 
 
@@ -34,11 +35,15 @@
         _job_list: >-
           {{ _job_list + hostvars[item].bareos_fd_jobs }}
       loop: "{{ groups['filedaemons'] }}"
+      tags: manage_jobs
       when:
         - hostvars[item].bareos_fd_jobs is defined  # use job(s) from host_vars instead
 
     - name: Register job list
       ansible.builtin.set_fact:
         bareos_dir_jobs: "{{ _job_list }}"
+      tags: manage_jobs
+
   roles:
-    - role: adfinis.bareos_dir
+    - role: bareos_dir
+      tags: manage_jobs
