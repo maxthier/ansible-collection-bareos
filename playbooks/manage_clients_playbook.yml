@@ -16,14 +16,22 @@
       delegate_facts: true
       run_once: true
       loop: "{{ groups['directors'] }}"
-      tags: setup
+      tags:
+        - manage_clients
+        - manage_clients::setup
   roles:
     - role: robertdebock.bootstrap  # prepare host for ansible runs
-      tags: setup
-    - role: adfinis.bareos_repository
-      tags: setup
-    - role: adfinis.bareos_fd
-      tags: setup
+      tags:
+        - manage_clients
+        - manage_clients::setup
+    - role: bareos_repository
+      tags:
+        - manage_clients
+        - manage_clients::setup
+    - role: bareos_fd
+      tags:
+        - manage_clients
+        - manage_clients::setup
 
 - name: Deploy Filedaemons on Director with the bareos_dir role
   hosts: directors
@@ -36,7 +44,9 @@
       delegate_to: "{{ item }}"
       delegate_facts: true
       loop: "{{ groups['filedaemons'] }}"
-      tags: deployment
+      tags:
+        - manage_clients
+        - manage_clients::deployment
 
     - name: Create list of Filedaemons to deploy on Director
       ansible.builtin.set_fact:
@@ -52,7 +62,9 @@
             'enabled': client_defaults.enabled}]
           }}
       loop: "{{ groups['filedaemons'] }}"
-      tags: deployment
+      tags:
+        - manage_clients
+        - manage_clients::deployment
       when:
         - hostvars[item].bareos_fd_configuration is undefined  # let's you set exceptions on host_vars level
 
@@ -61,15 +73,21 @@
         _fd_list: >-
           {{ _fd_list + [ hostvars[item].bareos_fd_configuration ] }}
       loop: "{{ groups['filedaemons'] }}"
-      tags: deployment
+      tags:
+        - manage_clients
+        - manage_clients::deployment
       when:
         - hostvars[item].bareos_fd_configuration is defined # use host_vars instead and add host to client list
 
     - name: Register client list
       ansible.builtin.set_fact:
         bareos_dir_clients: "{{ _fd_list }}"  # var is used in bareos_dir role
-      tags: deployment
+      tags:
+        - manage_clients
+        - manage_clients::deployment
 
   roles:
-    - role: adfinis.bareos_dir
-      tags: deployment
+    - role: bareos_dir
+      tags:
+        - manage_clients
+        - manage_clients::deployment
