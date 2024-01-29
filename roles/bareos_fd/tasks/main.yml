@@ -65,6 +65,13 @@
   when:
     - bareos_fd_encryption_enabled
 
+- name: Import plugin tasklist
+  ansible.builtin.import_tasks:
+    file: plugins.yml
+  when:
+    - bareos_fd_plugins is defined
+    - bareos_fd_plugins is iterable
+
 - name: Start bareos-filedaemon
   ansible.builtin.service:
     name: "{{ bareos_fd_service }}"
