@@ -44,7 +44,7 @@ This example is taken from [`molecule/default/converge.yml`](https://github.com/
           enabled: false
         - name: roadwarrior_notebook
           address: ""
-          password "MySecretPassword"
+          password: "MySecretPassword"
           maximum_concurrent_jobs: 3
           connection_from_director_to_client: false
           connection_from_client_to_director: true
