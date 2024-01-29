@@ -17,12 +17,12 @@ for role in ../ansible-role-bareos_* ; do
 done
 
 # Use proper role FQCNs in README example playbooks
-sed -i '' 's|- role: adfinis\.|- role: adfinis.roles.|' roles/*/README.md
+sed -i 's|- role: adfinis\.|- role: adfinis.roles.|' roles/*/README.md
 
 # Use proper role FQCNs in role `dependencies:`
-sed -i '' 's|- adfinis\.|- adfinis.roles.|' roles/*/meta/main.yml
+sed -i 's|- adfinis\.|- adfinis.roles.|' roles/*/meta/main.yml
 
 # Regenerate all used collections.
-echo "---" > requirements.yml
+echo -e "---\n" > requirements.yml
 echo "collections:" >> requirements.yml
 cat roles/*/requirements.yml | grep '  - name: ' | grep -v adfinis | sort | uniq >> requirements.yml
