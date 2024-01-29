@@ -129,6 +129,8 @@ This example is taken from [`molecule/default/converge.yml`](https://github.com/
             - "!saved"
         - name: "disabled-message"
           enabled: no
+      bareos_fd_plugins:
+        - mariabackup
 ```
 
 The machine needs to be prepared. In CI this is done using [`molecule/default/prepare.yml`](https://github.com/adfinis/ansible-role-bareos_fd/blob/master/molecule/default/prepare.yml):

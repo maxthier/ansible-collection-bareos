@@ -65,3 +65,7 @@ argument_specs:
         type: "str"
         default: ""
         description: "The master public key to use."
+      bareos_fd_plugins:
+        type: "list"
+        default: []
+        description: "Bareos plugins to install on the FD"

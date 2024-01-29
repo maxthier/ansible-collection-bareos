@@ -22,4 +22,23 @@ Client {
   PKI Master Key = "/etc/bareos/master.pub.key"
   PKI Cipher = aes128
 {% endif %}
+
+{#
+  bareos_fd_plugins is defined on host/group level,
+  while bareos_fd_plugin_list is a role var, with all available plugins
+#}
+{% if bareos_fd_plugins is defined %}
+{% for plugin in bareos_fd_plugins %}
+{% for item in bareos_fd_plugin_list if item.name == plugin %}
+
+{% if item.plugin_dir is defined %}
+  Plugin Directory = "{{ item.plugin_dir }}"
+{% endif %}
+{% if item.plugin_names is defined %}
+  Plugin Names = "{{ item.plugin_names }}"
+{% endif %}
+
+{% endfor %}
+{% endfor %}
+{% endif %}
 }

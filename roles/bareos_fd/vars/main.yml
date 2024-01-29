@@ -31,3 +31,19 @@ _bareos_fd_debug_packages:
     - bareos-debuginfo
     - gdb
 bareos_fd_debug_packages: "{{ _bareos_fd_debug_packages[ansible_os_family ~ '-' ~ ansible_distribution_major_version] | default(_bareos_fd_debug_packages[ansible_os_family]) | default(_bareos_fd_debug_packages['default']) }}"
+
+# A list of Bareos FD plugins and their packages
+bareos_fd_plugin_list:
+  - name: mariabackup
+    package_name: bareos-filedaemon-mariabackup-python-plugin
+    plugin_dir: "/usr/lib64/bareos/plugins"
+    plugin_names: python3
+  - name: mysql
+    plugin_dir: "/usr/lib64/bareos/plugins"
+    plugin_names: python3
+  - name: postgresql
+    package_name: bareos-filedaemon-postgresql-python-plugin
+    plugin_dir: "/usr/lib64/bareos/plugins"
+    plugin_names: python3
+  - name: ldap
+    package_name: bareos-filedaemon-ldap-python-plugin
