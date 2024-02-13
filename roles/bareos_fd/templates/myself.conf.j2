@@ -24,21 +24,11 @@ Client {
 {% endif %}
 
 {#
-  bareos_fd_plugins is defined on host/group level,
-  while bareos_fd_plugin_list is a role var, with all available plugins
+#  `bareos_fd_plugins` is a list defined on host/group level,
+#  while `bareos_fd_plugin_name` and `bareos_fd_plugin_dir` are role vars
 #}
 {% if bareos_fd_plugins is defined %}
-{% for plugin in bareos_fd_plugins %}
-{% for item in bareos_fd_plugin_list if item.name == plugin %}
-
-{% if item.plugin_dir is defined %}
-  Plugin Directory = "{{ item.plugin_dir }}"
-{% endif %}
-{% if item.plugin_names is defined %}
-  Plugin Names = "{{ item.plugin_names }}"
-{% endif %}
-
-{% endfor %}
-{% endfor %}
+  Plugin Names = "{{ bareos_fd_plugin_name }}"
+  Plugin Directory = "{{ bareos_fd_plugin_dir }}"
 {% endif %}
 }

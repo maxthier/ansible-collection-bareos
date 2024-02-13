@@ -4,7 +4,7 @@ galaxy_info:
   role_name: bareos_fd
   description: Install and configure [Bareos](https://www.bareos.com/) File Daemon.
   license: Apache-2.0
-  company: none
+  company: Adfinis
   min_ansible_version: "2.12"
 
   platforms:
@@ -20,8 +20,8 @@ galaxy_info:
         - "9"
     - name: Fedora
       versions:
-        - "37"
         - "38"
+        - "39"
     - name: opensuse
       versions:
         - all

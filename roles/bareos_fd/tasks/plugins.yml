@@ -1,12 +1,18 @@
 ---
 
-- name: plugins | Get Bareos plugin package names
+- name: plugins | Get data
   ansible.builtin.set_fact:
-    _plugin_packages:
-      "{{ bareos_fd_plugin_list | selectattr('name', 'match', item) | map(attribute='package_name') }}"
+    _plugin_data: >-
+      {{ _plugin_data + (bareos_fd_plugin_list | selectattr('name', 'equalto', item) | list) }}
   loop: "{{ bareos_fd_plugins }}"
+  vars:
+    _plugin_data: []  # empty list to append to
 
 - name: plugins | Install Bareos plugin packages
   ansible.builtin.package:
-    name: "{{ _plugin_packages }}"
+    name: "{{ item.packages }}"
     state: present
+  loop: "{{ _plugin_data }}"
+  notify:
+    - Check configuration
+    - Restart bareos-filedaemon
