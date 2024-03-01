@@ -6,6 +6,7 @@ bareos_fd_encryption_packages:
 
 bareos_fd_service: bareos-filedaemon
 bareos_fd_plugin_name: python3
+bareos_fd_plugin_dir: "/usr/lib64/bareos/plugins"
 
 # define the following stuff on Distro level (vars/<Distro.yml>). If a Distro is not there, it's not supported.
 # bareos_fd_plugin_list: every distro might have different package names and dependencies

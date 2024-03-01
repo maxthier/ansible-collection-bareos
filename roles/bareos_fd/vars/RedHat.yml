@@ -4,8 +4,6 @@ bareos_fd_debug_packages:
   - bareos-filedaemon-debuginfo
   - gdb
 
-bareos_fd_plugin_dir: "/usr/lib64/bareos/plugins"
-bareos_fd_plugin_name: python3
 bareos_fd_plugin_list:
   - name: mariabackup
     packages:
@@ -24,3 +22,7 @@ bareos_fd_plugin_list:
   - name: ldap
     packages:
       - bareos-filedaemon-ldap-python-plugin
+
+  - name: mysql_xtrabackup
+    packages:
+      - bareos-filedaemon-percona-xtrabackup-python-plugin
