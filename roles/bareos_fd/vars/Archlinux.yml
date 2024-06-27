@@ -1,9 +1,0 @@
----
-
-bareos_fd_encryption_packages:
-  - python-cryptography
-
-bareos_fd_service: bareos-fd
-
-bareos_fd_debug_packages:
-  - bareos-devel

@@ -1,0 +1,18 @@
+[submodule "roles/bareos_repository"]
+	path = roles/bareos_repository
+	url = https://github.com/adfinis/ansible-role-bareos_repository
+[submodule "roles/bareos_webui"]
+	path = roles/bareos_webui
+	url = https://github.com/adfinis/ansible-role-bareos_webui
+[submodule "roles/bareos_dir"]
+	path = roles/bareos_dir
+	url = https://github.com/adfinis/ansible-role-bareos_dir
+[submodule "roles/bareos_sd"]
+	path = roles/bareos_sd
+	url = https://github.com/adfinis/ansible-role-bareos_sd
+[submodule "roles/bareos_fd"]
+	path = roles/bareos_fd
+	url = https://github.com/adfinis/ansible-role-bareos_fd
+[submodule "roles/bareos_console"]
+	path = roles/bareos_console
+	url = https://github.com/adfinis/ansible-role-bareos_console
