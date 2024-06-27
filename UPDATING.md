@@ -1,17 +1,5 @@
 # Updating the roles
 
-1. Delete the roles:
-
-```shell
-rm -Rf roles/*
-```
-
-2. Copy the roles in:
-
-```shell
-./UPDATING.sh
-```
-
-3. Update galaxy.yml
-
-Bump version.
+Roles in collection are managed as [git submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodules).
+* Changes can be fetched with `git fetch`.
+* To pull changes for specific role, run: `git submodule update --remote <role name>` (Example: `git submodule update --remote roles/bareos_repository`).
