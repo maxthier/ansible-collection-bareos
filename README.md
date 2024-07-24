@@ -22,78 +22,101 @@ collections:
 
 ```yaml
 ---
-- name: make a great machine
-  hosts: all
-  tasks:
-    - name: Install Bareos repository
-      import_role:
-        name: adfinis.bareos.repository
+- name: Setup Bareos Director
+  hosts: directors
+  roles
+    - adfinis.bareos.repository
+    - adfinis.bareos.bareos_dir
+
+- name: Setup Bareos Filedaemons
+  hosts: filedaemons
+  roles
+    - adfinis.bareos.repository
+    - adfinis.bareos.bareos_fd
 ```
 
 ## Using playbooks in this collection
-
+The collection includes multiple playbooks to use with the individual roles. Playbooks from collections can be called by their FQCN directly.
 The playbooks aid to minimize the amount of necessary configuration and try to declare as much as possible in the form of defaults. In most scenarios stuff like client settings, backup file sets/excludes, retention are universally applicable for all (or most) clients.
 Therefore the playbooks rely heavly on group_vars, as a lot of data has to be shared between the Bareos components.
 For example: For every client/FD there needs to be some shared config data on both the Director (`/etc/bareos/bareos-dir.d/clients/<client fqdn>`) and the FD (`/etc/bareos/bareos-fd.d/<director>`) so a connection between them is possible.
 
-For example the playbook `manage_clients_playbook.yml` loops over the host group `filedaemons` and applies all client_default settings (defined as group_vars) without having to manage dedicated host_vars for every client/FD.
-
-### Example settings
-
-An example set of default settings for all clients (`group_vars/all/main.yml`), where all FDs initiate the TCP connection:
-
-```yaml
----
-
-client_defaults:
-  address: ""  # leave empty if the TCP connection should be initiated by the FD and not the Director
-  password: "{{ hostvars['bareos-director']['director_password'] }}"  # host_vars/bareos-director/vault.yml
-  maximum_concurrent_jobs: 3
-  connection_from_fd: true    # TCP connection FD->Dir
-  connection_from_dir: false  # TCP connection Dir-FD
-  heartbeat: 60  # TCP connection heartbeat Dir<->FD
-  enabled: true
+The playbooks try to ease the management of lots of backup clients and jobs, by adding default values that are applied for all hosts.
+These defaults can be applied in the from of group vars (`group_vars/all/defaults.yml`):
+``` yaml
+# list has to be defined here, to be able to add jobs later
+bareos_dir_jobs: []
 
 job_defaults:
-  name: Incremental_Daily
+  name: Daily_Incremental
   pool: Pool_Daily
   type: Backup
-  messages: Messages_Daily
+  messages: Messages
   jobdefs: JobDef_StandardIncremental
-  schedule: Schedule_StandardIncremental
-  storage: Storage_bareosStorageDaemon.example.com
-```
+  schedule: Daily2300_Incremental
+  storage: "Storage_bareosStorageDaemon.example.com"
 
-The host_vars of a host with different settings (`host_vars/host.example.com/main.yml`):
-```yaml
----
+# list has to be defined here, to be able to add clients later
+bareos_dir_clients: []
 
-bareos_fd_configuration:
-  name: host.example.com
-  address: host.example.com
+client_defaults:
+  address: ""  # leave empty as filedaemons initiate TCP connection to director
   password: "{{ hostvars['bareos-director']['director_password'] }}"
-  maximum_concurrent_jobs: 5
+  maximum_concurrent_jobs: 3
   enabled: true
-  connection_from_fd: false
-  connection_from_dir: true
-
-bareos_fd_jobs:
-  - name: host.example.com_Daily
-    pool: Pool_Daily
-    type: Backup
-    messages: Messages_Daily
-    jobdefs: JobDef_StandardIncremental
-    schedule: Schedule_StandardIncremental
-    storage: Storage_bareosStorageDaemon-01.example.com
-  - name: host.example.com_WeeklyFull
-    pool: Pool_Weekly
-    type: Backup
-    messages: Messages_Weekly
-    jobdefs: JobDef_StandardFull
-    schedule: Schedule_StandardFull
-    storage: Storage_bareosStorageDaemon-02.example.com
+  connection_from_fd: true
+  connection_from_dir: false
+  heartbeat: 60
 ```
 
-### Playbooks
-* **manage_clients_playbook.yml**: Sets up all clients/FDs (bareos_repository, bareos_fd) and deploys them dynamically on the Director (bareos_dir).
-* **manage_jobs_playbook.yml**: Sets up a dedicated job for every client/FD on the Director.
+All values can be overwritten by other group vars or individual host vars.
+
+The following playbooks are supported:
+
+### adfinis.bareos.manage_clients_playbook
+Playbook will setup the Bareos Filedaemon on all clients in the host group `filedaemons` and will deploy a Bareos client resource with the settings from `client_defaults` on the Director for each host.
+
+Supported tags:
+    * `manage_clients::setup` (Only sets up dhe FDs, without adding them on the Director)
+    * `mange_clients::deployment` (Deploys the configuration for each FD on the Director)
+
+``` bash
+ansible-playbook adfinis.bareos.manage_clients_playbook -i inventory
+```
+
+### adfinis.bareos.manage_jobs_playbook
+Playbook will deploy a dedicated backup job on the Bareos Director for every host in the host group `filedaemons` with the settings from `job_defaults`.
+Multiple jobs per client can be configured in the clients `host_vars`.
+Example for a host with multiple backup jobs (`host_vars/db-host.example.com/jobs.yml`):
+
+``` yaml
+ ---
+ 
+ bareos_fd_jobs:
+   - name: db-host.example.com_Daily_Incremental
+     client: db-host.examle.com
+     jobdefs: JobDef_StandardIncremental
+     pool: Pool_Daily
+     schedule: Daily2200_Incremental
+     storage: example-bareos-storagedaemon-01
+     messages: Daily_Messages
+ 
+   - name: db-host.example.com_PostgreSQL
+     client: db-host.examle.com
+     jobdefs: JobDef_PostgreSQL_Backup
+     pool: Pool_Daily
+     schedule: Daily2200_Incremental
+     storage: example-bareos-storagedaemon-01
+     messages: Daily_Messages
+```
+
+``` bash
+ansible-playbook adfinis.bareos.manage_jobs_playbook -i inventory
+```
+
+### adfinis.bareos.fetch_encryption_keys
+Playbook fetches the individual Filedaemon encryption keys, so that they can be stored off-site.
+
+``` bash
+ansible-playbook adfinis.bareos.fetch_encryption_keys -i inventory --check
+```
