@@ -1,17 +1,28 @@
 ---
 
-name: Build and Deploy Collection
-
+name: Build and deploy Collection on Ansible Galaxy
 on:
   push:
     branches:
       - main
+    tags:
+      - 'v*'
 jobs:
   deploy:
-    runs-on: "Ubuntu-20.04"
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Deploy Ansible Galaxy Collection
-        uses: artis3n/ansible_galaxy_collection@v2.9.0
+
+      - name: Checkout repository and submodules
+        uses: actions/checkout@v4
         with:
-          api_key: '${{ secrets.GALAXY_API_KEY }}'
+          submodules: 'true'
+
+      - name: Set version in galaxy.yml
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          sed -re "s/^version:.*$/version: ${VERSION}/" -i galaxy.yml
+
+      - name: Upload collection to Ansible Galaxy
+        uses: ansible/ansible-publish-action@v1.0.0
+        with:
+          api_key: ${{ secrets.GALAXY_API_KEY }}

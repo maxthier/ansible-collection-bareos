@@ -1,7 +1,7 @@
 ---
 namespace: adfinis
 name: bareos
-version: 1.0.0
+version: 1.0.5
 readme: README.md
 authors:
   - Adfinis
