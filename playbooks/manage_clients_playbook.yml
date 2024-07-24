@@ -1,0 +1,93 @@
+---
+
+- name: Gather facts from all hosts
+  hosts: all
+  become: true
+  gather_facts: true
+  tags: always
+
+- name: Setup clients from host_group filedaemons
+  hosts: filedaemons
+  become: true
+  pre_tasks:
+    - name: Fetch facts from director
+      ansible.builtin.setup:
+      delegate_to: "{{ item }}"
+      delegate_facts: true
+      run_once: true
+      loop: "{{ groups['directors'] }}"
+      tags:
+        - manage_clients
+        - manage_clients::setup
+  roles:
+    - role: robertdebock.bootstrap  # prepare host for ansible runs
+      tags:
+        - manage_clients
+        - manage_clients::setup
+    - role: bareos_repository
+      tags:
+        - manage_clients
+        - manage_clients::setup
+    - role: bareos_fd
+      tags:
+        - manage_clients
+        - manage_clients::setup
+
+- name: Deploy Filedaemons on Director with the bareos_dir role
+  hosts: directors
+  become: true
+  vars:
+    _fd_list: []
+  pre_tasks:
+    - name: Gather Ansible facts for all Filedaemons
+      ansible.builtin.setup:
+      delegate_to: "{{ item }}"
+      delegate_facts: true
+      loop: "{{ groups['filedaemons'] }}"
+      tags:
+        - manage_clients
+        - manage_clients::deployment
+
+    - name: Create list of Filedaemons to deploy on Director
+      ansible.builtin.set_fact:
+        _fd_list: >-
+          {{ _fd_list + [{
+            'name': item,
+            'address': client_defaults.address,
+            'password': client_defaults.password,
+            'maximum_concurrent_jobs': client_defaults.maximum_concurrent_jobs,
+            'connection_from_director_to_client': client_defaults.connection_from_dir,
+            'connection_from_client_to_director': client_defaults.connection_from_fd,
+            'heartbeat': client_defaults.heartbeat,
+            'enabled': client_defaults.enabled}]
+          }}
+      loop: "{{ groups['filedaemons'] }}"
+      tags:
+        - manage_clients
+        - manage_clients::deployment
+      when:
+        - hostvars[item].bareos_fd_configuration is undefined  # let's you set exceptions on host_vars level
+
+    - name: Add Filedaemons to list which have separate host_vars defined
+      ansible.builtin.set_fact:
+        _fd_list: >-
+          {{ _fd_list + [ hostvars[item].bareos_fd_configuration ] }}
+      loop: "{{ groups['filedaemons'] }}"
+      tags:
+        - manage_clients
+        - manage_clients::deployment
+      when:
+        - hostvars[item].bareos_fd_configuration is defined # use host_vars instead and add host to client list
+
+    - name: Register client list
+      ansible.builtin.set_fact:
+        bareos_dir_clients: "{{ _fd_list }}"  # var is used in bareos_dir role
+      tags:
+        - manage_clients
+        - manage_clients::deployment
+
+  roles:
+    - role: bareos_dir
+      tags:
+        - manage_clients
+        - manage_clients::deployment

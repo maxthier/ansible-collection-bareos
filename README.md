@@ -37,6 +37,9 @@ collections:
 
 ## Using playbooks in this collection
 The collection includes multiple playbooks to use with the individual roles. Playbooks from collections can be called by their FQCN directly.
+The playbooks aid to minimize the amount of necessary configuration and try to declare as much as possible in the form of defaults. In most scenarios stuff like client settings, backup file sets/excludes, retention are universally applicable for all (or most) clients.
+Therefore the playbooks rely heavly on group_vars, as a lot of data has to be shared between the Bareos components.
+For example: For every client/FD there needs to be some shared config data on both the Director (`/etc/bareos/bareos-dir.d/clients/<client fqdn>`) and the FD (`/etc/bareos/bareos-fd.d/<director>`) so a connection between them is possible.
 
 The playbooks try to ease the management of lots of backup clients and jobs, by adding default values that are applied for all hosts.
 These defaults can be applied in the from of group vars (`group_vars/all/defaults.yml`):
@@ -51,7 +54,7 @@ job_defaults:
   messages: Messages
   jobdefs: JobDef_StandardIncremental
   schedule: Daily2300_Incremental
-  storage: "{{ bareos_storagedaemon }}"
+  storage: "Storage_bareosStorageDaemon.example.com"
 
 # list has to be defined here, to be able to add clients later
 bareos_dir_clients: []
@@ -117,4 +120,3 @@ Playbook fetches the individual Filedaemon encryption keys, so that they can be 
 ``` bash
 ansible-playbook adfinis.bareos.fetch_encryption_keys -i inventory --check
 ```
-

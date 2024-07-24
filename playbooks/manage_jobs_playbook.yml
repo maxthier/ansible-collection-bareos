@@ -1,0 +1,49 @@
+---
+
+- name: Gather facts from all hosts
+  hosts: all
+  become: true
+  gather_facts: true
+  tags: always
+
+- name: Create jobs on Director for every client in host_group filedaemons
+  hosts: directors
+  become: true
+  vars:
+    _job_list: []
+  pre_tasks:
+    - name: Create job list for all FDs with defined standard values (group_vars)
+      ansible.builtin.set_fact:
+        _job_list: >-
+          {{ _job_list + [{
+            'name': item+'_'+job_defaults.name,
+            'client': item,
+            'pool': job_defaults.pool,
+            'type': job_defaults.type,
+            'messages': job_defaults.messages,
+            'jobdefs': job_defaults.jobdefs,
+            'storage': job_defaults.storage,
+            'schedule': job_defaults.schedule}]
+          }}
+      loop: "{{ groups['filedaemons'] }}"
+      tags: manage_jobs
+      when:  # if job(s) are defined in host_vars, standards will be skipped
+        - hostvars[item].bareos_fd_jobs is undefined 
+
+    - name: Add dedicated jobs defined in host_vars
+      ansible.builtin.set_fact:
+        _job_list: >-
+          {{ _job_list + hostvars[item].bareos_fd_jobs }}
+      loop: "{{ groups['filedaemons'] }}"
+      tags: manage_jobs
+      when:
+        - hostvars[item].bareos_fd_jobs is defined  # use job(s) from host_vars instead
+
+    - name: Register job list
+      ansible.builtin.set_fact:
+        bareos_dir_jobs: "{{ _job_list }}"
+      tags: manage_jobs
+
+  roles:
+    - role: bareos_dir
+      tags: manage_jobs
