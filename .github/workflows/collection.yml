@@ -2,20 +2,24 @@
 
 name: Build and deploy Collection on Ansible Galaxy
 on:
-  push:
-    branches:
-      - main
+  release:
+    types:
+      - published
     tags:
       - 'v*'
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-
       - name: Checkout repository and submodules
         uses: actions/checkout@v4
         with:
           submodules: 'true'
+
+      - name: Set version in galaxy.yml
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          sed -re "s/^version:.*$/version: ${VERSION}/" -i galaxy.yml
 
       - name: Upload collection to Ansible Galaxy
         uses: ansible/ansible-publish-action@v1.0.0
